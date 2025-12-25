@@ -2,16 +2,21 @@ import 'package:flutter/material.dart';
 import '../../data/mock_grocery_repository.dart';
 import '../../models/grocery.dart';
 import 'grocery_form.dart';
+import '../groceries/tab/all_groceries.dart';
+import '../groceries/tab/search_groceries.dart';
+
+enum GroceryTab { allGroceries, searchGrocery }
 
 class GroceryList extends StatefulWidget {
-  const GroceryList({super.key});
+  const GroceryList({super.key, required this.groceryId, required Grocery grocery});
+  final String groceryId;
 
   @override
   State<GroceryList> createState() => _GroceryListState();
 }
 
 class _GroceryListState extends State<GroceryList> {
-
+  GroceryTab _currentTab = GroceryTab.allGroceries;
   void onCreate() async {
     // Navigate to the form screen using the Navigator push
     Grocery? newGrocery = await Navigator.push<Grocery>(
@@ -43,7 +48,33 @@ class _GroceryListState extends State<GroceryList> {
         title: const Text('Your Groceries'),
         actions: [IconButton(onPressed: onCreate, icon: const Icon(Icons.add))],
       ),
-      body: content,
+      body: IndexedStack(
+        index: _currentTab.index,
+        children: [
+          AllGroceries(groceryID: widget.groceryId),
+          SearchGroceries(groceryID: widget.groceryId),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentTab.index,
+        selectedItemColor: Colors.lightBlueAccent,
+        onTap: (index) {
+          setState(() {
+            _currentTab = GroceryTab.values[index];
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_grocery_store),
+            label: 'Groceries',
+          ),
+    
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Search',
+          ),
+        ],
+      ),
     );
   }
 }
